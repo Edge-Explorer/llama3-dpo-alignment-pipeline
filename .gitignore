@@ -1,0 +1,29 @@
+# Models (Large files - ignore)
+models/
+outputs/
+llama3_dpo_adapter.zip
+llama3_dpo_adapter/
+
+# Python/Environment
+venv/
+.env
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+unsloth_compiled_cache/
+huggingface_tokenizers_cache/
+sample_data/
+
+# WandB
+wandb/
+
+# Local Data (Fallback data files)
+*.jsonl
+!data/orca_rlhf.jsonl # If you want to keep data in repo, otherwise ignore
+
+# OS
+.DS_Store
+Thumbs.db
