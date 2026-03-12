@@ -127,12 +127,12 @@ dataset: Intel/orca_dpo_pairs (1000 samples)
 - [x] Project scaffold & structure
 - [x] Dataset preparation (`orca_rlhf.jsonl`)
 - [x] Notebook-based DPO training pipeline
-- [ ] Resolve training environment (Colab vs Kaggle)
-- [ ] Successful DPO training run
+- [x] Resolve training environment (Colab vs Kaggle)
+- [x] Successful DPO training run
 - [ ] Save & push LoRA adapter to HuggingFace Hub
 - [ ] Inference & evaluation notebook
-- [ ] Convert to modular `scripts/train_dpo.py`
-- [ ] YAML config system (`configs/dpo_config.yaml`)
+- [x] Convert to modular `scripts/train_dpo.py`
+- [x] YAML config system (`configs/dpo_config.yaml`)
 - [ ] Automated benchmarking (MT-Bench / TruthfulQA)
 
 ---
