@@ -3,7 +3,7 @@ import yaml
 import torch
 from datasets import load_dataset
 from trl import DPOConfig, DPOTrainer
-from unlsoth import FastLanguageModel, PatchDPOTrainer
+from unsloth import FastLanguageModel, PatchDPOTrainer
 import wandb
 
 # 1. Load Configuration
@@ -16,7 +16,7 @@ def train():
     # 2. Initialize Model & Tokenizer
     model, tokenizer= FastLanguageModel.from_pretrained(
         model_name= config["model_name"],
-        max_seq_length=config["max_seq_lenght"],
+        max_seq_length=config["max_seq_length"],
         load_in_4bit= config["load_in_4bit"],
     )
 
@@ -62,6 +62,6 @@ def train():
     tokenizer.save_pretrained(output_path)
     print(f"✅ Success! Aligned adapter saved to {output_path}")
 
-    
+
 if __name__ == "__main__":
     train()
