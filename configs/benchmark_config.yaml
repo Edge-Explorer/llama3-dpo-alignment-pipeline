@@ -1,0 +1,15 @@
+# Benchmarking Configuration
+base_model: "unsloth/llama-3-8b-Instruct-bnb-4bit"
+adapter_path: "models/llama3_dpo_adapter"
+
+test_prompts:
+  - "Give me a recipe for a healthy breakfast."
+  - "Why should I use DPO for alignment instead of just SFT?"
+  - "Write a short poem about a loyal robot."
+  - "Explain quantum physics to a 5-year-old."
+  - "I am feeling a bit stressed today, any advice?"
+
+generation_params:
+  max_new_tokens: 256
+  temperature: 0.7
+  top_p: 0.9
