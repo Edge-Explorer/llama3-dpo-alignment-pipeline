@@ -1,19 +1,30 @@
 # 🦙 Llama-3 DPO Alignment Pipeline
 
-A modular, production-ready pipeline for fine-tuning Llama-3 8B using **Direct Preference Optimization (DPO)** — the same technique used to align GPT-4, Claude, and Gemini to human preferences.
+> A professional, modular pipeline to fine-tune **Llama-3 8B** using **Direct Preference Optimization (DPO)** — from training to inference to benchmarking.
+
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)](https://python.org)
+[![Unsloth](https://img.shields.io/badge/Unsloth-Optimized-orange)](https://github.com/unslothai/unsloth)
+[![TRL](https://img.shields.io/badge/TRL-DPO-green)](https://github.com/huggingface/trl)
+[![HuggingFace](https://img.shields.io/badge/🤗%20Model-Karan6124%2Fllama3--8b--dpo--orca--adapter-yellow)](https://huggingface.co/Karan6124/llama3-8b-dpo-orca-adapter)
+[![GitHub](https://img.shields.io/badge/GitHub-Edge--Explorer-black?logo=github)](https://github.com/Edge-Explorer/llama3-dpo-alignment-pipeline)
+[![License](https://img.shields.io/badge/License-MIT-lightgrey)](LICENSE)
 
 ---
 
-## 🧠 What Is This?
+## 🚀 What is This Project?
 
-This project trains a Llama-3 8B model to prefer "good" responses over "bad" ones using the **Intel Orca DPO Pairs** dataset. Instead of just predicting the next token (like standard SFT), DPO teaches the model to **rank responses** — making it more helpful, less harmful, and more aligned with human intent.
+This repository contains a **complete, production-grade pipeline** for aligning a large language model using DPO. Instead of manually patching notebooks together, this project is structured as reusable Python scripts with YAML configurations so **anyone can reproduce the training** with a single command.
 
-**Core formula:**
-```
-DPO Loss = -log σ(β · (log π(chosen) - log π(rejected)) - (log π_ref(chosen) - log π_ref(rejected)))
-```
-- `β` controls how strongly the model should deviate from its base behavior (we use `0.1`)
-- Higher `rewards/margin` in WandB = model is learning to prefer chosen over rejected ✅
+### ⚡ The Core Idea
+| Concept | What We Did |
+|---|---|
+| **Base Model** | `unsloth/llama-3-8b-Instruct-bnb-4bit` |
+| **Alignment Technique** | Direct Preference Optimization (DPO) |
+| **Dataset** | `Intel/orca_dpo_pairs` (1,000 samples) |
+| **Speed Optimization** | Unsloth (2x faster training) |
+| **Memory Optimization** | 4-bit quantization + Gradient Checkpointing |
+| **Environment** | Kaggle T4 x2 GPU (Free Tier) |
+| **Trained Adapter** | [🤗 Karan6124/llama3-8b-dpo-orca-adapter](https://huggingface.co/Karan6124/llama3-8b-dpo-orca-adapter) |
 
 ---
 
@@ -21,122 +32,128 @@ DPO Loss = -log σ(β · (log π(chosen) - log π(rejected)) - (log π_ref(chose
 
 ```
 llama3-dpo-alignment-pipeline/
-├── training/
-│   ├── Training_Colab.ipynb        # Original Colab notebook (archived)
-│   └── Training_llama3_dpo.ipynb   # Active training notebook
-├── data/
-│   └── orca_rlhf.jsonl             # Local DPO dataset (chosen/rejected pairs)
-├── configs/                        # (Planned) YAML training configs
-├── scripts/                        # (Planned) Modular Python training scripts
-├── README.md
-└── LICENSE
+├── 📁 configs/
+│   ├── dpo_config.yaml          # All DPO training hyperparameters
+│   └── benchmark_config.yaml   # Test prompts & generation settings
+├── 📁 scripts/
+│   └── train_dpo.py            # The main training engine (reads from configs/)
+├── 📁 inference/
+│   └── inference.py            # Load adapter and run interactive inference
+├── 📁 evaluation/
+│   └── benchmark.py            # Compare Base vs. Aligned model side-by-side
+├── 📁 training/
+│   └── training-llama3-dpo.ipynb  # The original Kaggle notebook
+├── 📁 models/                  # (gitignored) Local adapter weights live here
+├── pyproject.toml              # Dependency management with uv
+└── README.md
 ```
 
 ---
 
-## ⚙️ Tech Stack
+## 🛠️ Setup & Installation
 
-| Component | Library | Purpose |
-|:--|:--|:--|
-| Base Model | `unsloth/llama-3-8b-Instruct-bnb-4bit` | 4-bit quantized Llama-3 |
-| Efficiency | `Unsloth 2026.3.4` | 2x faster training, 60% less VRAM |
-| Adapter | `LoRA (r=64)` via PEFT | Train only 2% of parameters |
-| Alignment | `DPO` via TRL | Preference-based alignment |
-| Tracking | `WandB` | Real-time loss & reward curves |
-| Hardware | `Tesla T4 (15GB)` | Google Colab free tier |
+This project uses [**uv**](https://github.com/astral-sh/uv) — the fastest Python package manager. Everything is managed in one command.
 
----
-
-## 🚨 Training Environment: Known Issue & Recommendation
-
-### The Core Problem
-Google Colab's free tier runs **Python 3.12** with **Transformers 5.0.0** pre-installed. The `trl` library (which provides `DPOTrainer`) and `Unsloth`'s patched trainer are currently **not fully compatible** with this combination, causing cascading `ImportError`, `TypeError`, and `AttributeError` issues regardless of which `trl` version is installed.
-
-### The Dependency Conflict Chain
-```
-Colab pre-installs: transformers==5.0.0
-↓
-trl 0.8.6 (needed for Unsloth) → broke with transformers 5.0
-↓
-trl latest → DPOConfig API changed, Unsloth patch breaks
-↓
-Unsloth compiled cache → hardcoded expectations of specific trl+transformers versions
+### 1. Install `uv`
+```powershell
+# Windows
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-### ✅ Recommended Alternatives (Pick One)
+### 2. Clone the Repo & Sync Dependencies
+```bash
+git clone https://github.com/Edge-Explorer/llama3-dpo-alignment-pipeline.git
+cd llama3-dpo-alignment-pipeline
+uv sync
+```
 
-| Platform | GPU | Cost | Why It Works |
-|:--|:--|:--|:--|
-| **Kaggle Notebooks** | T4 16GB | 🆓 Free (30h/week) | Older, stable Python env. Full pip control. **Best free option.** |
-| **Lightning AI** | T4 (4h/day) | 🆓 Free tier | Clean Ubuntu container, install exact versions |
-| **Vast.ai** | Any GPU | 💰 ~$0.20/hr | Full Docker control, no pre-installed conflicts |
-| **RunPod** | A100/H100 | 💰 ~$0.50/hr | Clean PyTorch images, fast training |
-| **Google Colab Pro** | A100 | 💰 $10/month | Same environment, but longer sessions |
-
-### 🏆 Recommendation: **Kaggle**
-Kaggle is the closest free alternative to Colab. It:
-- Has a T4 GPU (same as Colab free)
-- Has a **stable, older Python environment** that doesn't conflict with `trl 0.8.x`
-- Supports uploading datasets directly
-- Has no pre-installed "bleeding edge" packages that break things
+> **Note:** Unsloth requires an NVIDIA GPU to import. For local development, you can write and review code without a GPU. Use Kaggle or Google Colab to actually run the scripts.
 
 ---
 
-## 🚀 Quick Start (Kaggle)
+## 🏋️ Training
 
-1. Go to [kaggle.com/code](https://www.kaggle.com/code) → **New Notebook**
-2. Enable GPU: Settings → Accelerator → **GPU T4 x2**
-3. Upload `orca_rlhf.jsonl` via the **Data** panel
-4. Use the cells from `Training_llama3_dpo.ipynb`
+All training parameters are in `configs/dpo_config.yaml`. You can tweak learning rates, batch sizes, and sequence lengths without touching any Python code.
+
+```bash
+# On Kaggle or a GPU machine:
+uv run python scripts/train_dpo.py
+```
+
+**Key Hyperparameters (optimized for T4 GPU):**
+- `beta`: 0.1 (DPO temperature)
+- `learning_rate`: 5e-6
+- `per_device_train_batch_size`: 1
+- `gradient_accumulation_steps`: 8
+- `max_length`: 768
 
 ---
 
-## 📊 Training Config
+## 🤖 Inference
 
-```yaml
-model: unsloth/llama-3-8b-Instruct-bnb-4bit
-lora_r: 64
-lora_alpha: 64
-target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
-beta: 0.1
-learning_rate: 5e-6
-batch_size: 2
-gradient_accumulation: 4   # effective batch = 8
-max_length: 1024
-max_prompt_length: 512
-epochs: 1
-optimizer: paged_adamw_8bit
-dataset: Intel/orca_dpo_pairs (1000 samples)
+Download the trained adapter from Hugging Face and load it locally.
+
+```bash
+# Make sure the adapter is in models/llama3_dpo_adapter/
+uv run python inference/inference.py
+```
+
+Or use it directly in your own code:
+
+```python
+from unsloth import FastLanguageModel
+
+model, tokenizer = FastLanguageModel.from_pretrained(
+    model_name = "Karan6124/llama3-8b-dpo-orca-adapter",
+    max_seq_length = 2048,
+    load_in_4bit = True,
+)
+FastLanguageModel.for_inference(model)
+
+messages = [{"role": "user", "content": "Why use DPO over SFT?"}]
+inputs = tokenizer.apply_chat_template(
+    messages, tokenize=True, add_generation_prompt=True, return_tensors="pt"
+).to("cuda")
+
+outputs = model.generate(**inputs, max_new_tokens=256)
+print(tokenizer.batch_decode(outputs, skip_special_tokens=True)[0])
 ```
 
 ---
 
-## 📈 What to Watch in WandB
+## 📊 Benchmarking
 
-| Metric | Expected Trend | Meaning |
-|:--|:--|:--|
-| `rewards/margins` | ⬆️ Increasing | Model learns to prefer `chosen` |
-| `rewards/chosen` | ⬆️ Increasing | Model assigns higher reward to good responses |
-| `rewards/rejected` | ⬇️ Decreasing | Model assigns lower reward to bad responses |
-| `loss` | ⬇️ Decreasing | Model is converging |
+Run the benchmark script on Kaggle to generate a comparison report:
+
+```bash
+uv run python evaluation/benchmark.py
+```
+
+Results are saved automatically to `evaluation/benchmark_report.txt`.
 
 ---
 
-## 🗺️ Roadmap
+## 🏆 Key Lessons Learned
 
-- [x] Project scaffold & structure
-- [x] Dataset preparation (`orca_rlhf.jsonl`)
-- [x] Notebook-based DPO training pipeline
-- [x] Resolve training environment (Colab vs Kaggle)
-- [x] Successful DPO training run
-- [ ] Save & push LoRA adapter to HuggingFace Hub
-- [ ] Inference & evaluation notebook
-- [x] Convert to modular `scripts/train_dpo.py`
-- [x] YAML config system (`configs/dpo_config.yaml`)
-- [ ] Automated benchmarking (MT-Bench / TruthfulQA)
+| Problem | Solution |
+|---|---|
+| `transformers 5.0.0` broke `trl` in Colab | Switched to Kaggle's stable environment |
+| `DPOConfig` not found in old `trl` | Pinned to `trl>=0.12.0` |
+| `OutOfMemoryError` on T4 GPU | Reduced batch size to 1, enabled gradient checkpointing |
+| Slow training | Unsloth's `PatchDPOTrainer` gave ~2x speedup |
+| Messy notebook workflow | Refactored into reusable scripts + YAML configs |
 
 ---
 
 ## 📄 License
 
-MIT License — see [LICENSE](LICENSE) for details.
+This project is licensed under the **MIT License** — see [LICENSE](LICENSE) for details.
+
+---
+
+## 🙏 Acknowledgements
+
+- [Unsloth](https://github.com/unslothai/unsloth) for making LLM fine-tuning incredibly fast
+- [TRL by HuggingFace](https://github.com/huggingface/trl) for the DPO implementation
+- [Intel/orca_dpo_pairs](https://huggingface.co/datasets/Intel/orca_dpo_pairs) for the training dataset
+- [Kaggle](https://kaggle.com) for the free GPUs that made this possible
