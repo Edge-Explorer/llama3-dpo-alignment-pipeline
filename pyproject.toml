@@ -1,7 +1,37 @@
 [project]
 name = "llama3-dpo-alignment-pipeline"
 version = "0.1.0"
-description = "Add your description here"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["scripts", "configs", "training"]
+description = "A professional pipeline for Llama-3 DPO alignment using Unsloth"
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = []
+requires-python = ">=3.10"
+dependencies = [
+    "torch",
+    "transformers>=4.40.1",
+    "trl==0.8.6", # Pinning to the version that worked best during our session
+    "peft",
+    "accelerate",
+    "bitsandbytes",
+    "wandb",
+    "pyyaml",
+    "unsloth @ git+https://github.com/unslothai/unsloth.git",
+    "xformers",
+    "packaging",
+    "ninja",
+    "datasets",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "ipykernel",
+    "jupyter",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
