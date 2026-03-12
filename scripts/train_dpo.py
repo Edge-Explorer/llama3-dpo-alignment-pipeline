@@ -1,10 +1,11 @@
 import os
 import yaml 
+from unsloth import FastLanguageModel, PatchDPOTrainer
 import torch
 from datasets import load_dataset
 from trl import DPOConfig, DPOTrainer
-from unsloth import FastLanguageModel, PatchDPOTrainer
 import wandb
+
 
 # 1. Load Configuration
 with open("configs/dpo_config.yaml", "r") as f:
