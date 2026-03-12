@@ -3,9 +3,9 @@ import torch
 from unsloth import FastLanguageModel
 
 # Memory Optimization
-os.envrion["PYTORCH_CUDA_ALLOC_CONF"]= "expandable_segments: True"
+os.environ["PYTORCH_CUDA_ALLOC_CONF"]= "expandable_segments: True"
 
-def run_inference(adapter_path="model/llama3_dpo_adapter"):
+def run_inference(adapter_path="models/llama3_dpo_adapter"):
     # 1. Load Model + Adapter
     model, tokenizer= FastLanguageModel.from_pretrained(
         model_name= adapter_path,
@@ -17,7 +17,7 @@ def run_inference(adapter_path="model/llama3_dpo_adapter"):
     FastLanguageModel.for_inference(model)
 
     # 3. Chat Template
-    message= [
+    messages= [
         {"role": "user", "content": "Explain the concept of DPO in simple terms."},
     ]
 
@@ -28,7 +28,7 @@ def run_inference(adapter_path="model/llama3_dpo_adapter"):
         return_tensors= "pt",
     ).to("cuda")
 
-     # 4. Generate
+     # 4. Generate (No extra space at the start!)
     print("Thinking...")
     outputs = model.generate(
         **inputs, 
