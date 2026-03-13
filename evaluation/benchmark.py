@@ -2,7 +2,13 @@ import os
 import yaml
 import torch
 import argparse
+import warnings
+import logging
 from unsloth import FastLanguageModel
+
+# 🔇 Hide noisy library warnings
+warnings.filterwarnings("ignore")
+logging.getLogger("transformers").setLevel(logging.ERROR)
 
 # 🚦 Memory Optimization
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
