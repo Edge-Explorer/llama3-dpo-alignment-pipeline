@@ -1,6 +1,6 @@
 # Benchmarking Configuration
 base_model: "unsloth/llama-3-8b-Instruct-bnb-4bit"
-adapter_path: "models/llama3_dpo_adapter"
+adapter_path: "Karan6124/llama3-8b-dpo-orca-adapter"
 
 test_prompts:
   - "Give me a recipe for a healthy breakfast."
